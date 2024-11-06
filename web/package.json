@@ -11,16 +11,26 @@
     ]
   },
   "dependencies": {
+    "@mantine/charts": "^7.13.4",
+    "@mantine/core": "^7.13.4",
+    "@mantine/dates": "^7.13.4",
+    "@mantine/form": "^7.13.4",
+    "@mantine/hooks": "^7.13.4",
     "@redwoodjs/auth-dbauth-web": "8.4.0",
     "@redwoodjs/forms": "8.4.0",
     "@redwoodjs/router": "8.4.0",
     "@redwoodjs/web": "8.4.0",
+    "dayjs": "^1.11.13",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "recharts": "2"
   },
   "devDependencies": {
     "@redwoodjs/vite": "8.4.0",
     "@types/react": "^18.2.55",
-    "@types/react-dom": "^18.2.19"
+    "@types/react-dom": "^18.2.19",
+    "postcss": "^8.4.47",
+    "postcss-preset-mantine": "^1.17.0",
+    "postcss-simple-vars": "^7.0.1"
   }
 }
