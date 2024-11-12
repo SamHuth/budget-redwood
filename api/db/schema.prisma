@@ -9,10 +9,37 @@ generator client {
 }
 
 model User {
-  id                  Int       @id @default(autoincrement())
-  email               String    @unique
+  id                  Int        @id @default(autoincrement())
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  email               String     @unique
   hashedPassword      String
   salt                String
   resetToken          String?
   resetTokenExpiresAt DateTime?
+  Calendar            Calendar[]
+}
+
+model Calendar {
+  id         Int          @id @default(autoincrement())
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  name       String
+  user       User         @relation(fields: [userId], references: [id])
+  userId     Int
+  BudgetItem BudgetItem[]
+}
+
+model BudgetItem {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  calendar   Calendar @relation(fields: [calendarId], references: [id])
+  calendarId Int
+  type       String
+  amount     Float
+  recurring  Boolean
+  startDate  DateTime
+  endDate    DateTime
+  dayOfMonth Int
 }
