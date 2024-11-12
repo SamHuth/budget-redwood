@@ -1,6 +1,9 @@
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda'
 
-import { DbAuthHandler } from '@redwoodjs/auth-dbauth-api'
+import {
+  DbAuthHandler,
+  PasswordValidationError,
+} from '@redwoodjs/auth-dbauth-api'
 import type { DbAuthHandlerOptions, UserType } from '@redwoodjs/auth-dbauth-api'
 
 import { cookieName } from 'src/lib/auth'
@@ -11,6 +14,8 @@ export const handler = async (
   context: Context
 ) => {
   const forgotPasswordOptions: DbAuthHandlerOptions['forgotPassword'] = {
+    // Disabled for now - this can be handled later
+    enabled: false,
     // handler() is invoked after verifying that a user was found with the given
     // username. This is where you can send the user an email with a link to
     // reset their password. With the default dbAuth routes and field names, the
@@ -50,32 +55,21 @@ export const handler = async (
   }
 
   const loginOptions: DbAuthHandlerOptions['login'] = {
-    // handler() is called after finding the user that matches the
-    // username/password provided at login, but before actually considering them
-    // logged in. The `user` argument will be the user in the database that
-    // matched the username/password.
-    //
-    // If you want to allow this user to log in simply return the user.
-    //
-    // If you want to prevent someone logging in for another reason (maybe they
-    // didn't validate their email yet), throw an error and it will be returned
-    // by the `logIn()` function from `useAuth()` in the form of:
-    // `{ message: 'Error message' }`
     handler: (user) => {
+      // If you want to prevent someone logging in for another reason (maybe they
+      // didn't validate their email yet), throw an error and it will be returned
+      // by the `logIn()` function from `useAuth()` in the form of:
+      // `{ message: 'Error message' }`
       return user
     },
-
     errors: {
       usernameOrPasswordMissing: 'Both username and password are required',
-      usernameNotFound: 'Username ${username} not found',
-      // For security reasons you may want to make this the same as the
-      // usernameNotFound error so that a malicious user can't use the error
-      // to narrow down if it's the username or password that's incorrect
-      incorrectPassword: 'Incorrect password for ${username}',
+      usernameNotFound: 'Username or Password Incorrect',
+      incorrectPassword: 'Username or Password Incorrect',
     },
 
     // How long a user will remain logged in, in seconds
-    expires: 60 * 60 * 24 * 365 * 10,
+    expires: 60 * 60 * 24 * 30, // 30 Days
   }
 
   const resetPasswordOptions: DbAuthHandlerOptions['resetPassword'] = {
@@ -110,48 +104,33 @@ export const handler = async (
     UserType,
     UserAttributes
   >['signup'] = {
-    // Whatever you want to happen to your data on new user signup. Redwood will
-    // check for duplicate usernames before calling this handler. At a minimum
-    // you need to save the `username`, `hashedPassword` and `salt` to your
-    // user table. `userAttributes` contains any additional object members that
-    // were included in the object given to the `signUp()` function you got
-    // from `useAuth()`.
-    //
-    // If you want the user to be immediately logged in, return the user that
-    // was created.
-    //
-    // If this handler throws an error, it will be returned by the `signUp()`
-    // function in the form of: `{ error: 'Error message' }`.
-    //
-    // If this returns anything else, it will be returned by the
-    // `signUp()` function in the form of: `{ message: 'String here' }`.
-    handler: ({
-      username,
-      hashedPassword,
-      salt,
-      userAttributes: _userAttributes,
-    }) => {
+    handler: ({ username, hashedPassword, salt, userAttributes }) => {
       return db.user.create({
         data: {
           email: username,
           hashedPassword: hashedPassword,
           salt: salt,
-          // name: userAttributes.name
+          name: userAttributes.name,
         },
       })
     },
+    passwordValidation: (password) => {
+      if (password.length < 8) {
+        throw new PasswordValidationError(
+          'Password must be at least 8 characters'
+        )
+      }
 
-    // Include any format checks for password here. Return `true` if the
-    // password is valid, otherwise throw a `PasswordValidationError`.
-    // Import the error along with `DbAuthHandler` from `@redwoodjs/api` above.
-    passwordValidation: (_password) => {
+      if (!password.match(/[A-Z]/)) {
+        throw new PasswordValidationError(
+          'Password must contain at least one capital letter'
+        )
+      }
       return true
     },
-
     errors: {
-      // `field` will be either "username" or "password"
       fieldMissing: '${field} is required',
-      usernameTaken: 'Username `${username}` already in use',
+      usernameTaken: 'An account with email `${username}` is already in use',
     },
   }
 

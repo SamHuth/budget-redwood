@@ -19,7 +19,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(routes.home())
+      navigate(routes.app())
     }
   }, [isAuthenticated])
 
@@ -38,8 +38,6 @@ const LoginPage = () => {
       toast(response.message)
     } else if (response.error) {
       toast.error(response.error)
-    } else {
-      toast.success('Welcome back!')
     }
   }
 
