@@ -20,6 +20,7 @@
     "@redwoodjs/forms": "8.4.1",
     "@redwoodjs/router": "8.4.1",
     "@redwoodjs/web": "8.4.1",
+    "@tabler/icons-react": "^3.22.0",
     "dayjs": "^1.11.13",
     "humanize-string": "2.1.0",
     "react": "18.3.1",

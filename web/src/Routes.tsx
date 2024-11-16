@@ -17,12 +17,8 @@ const Routes = () => {
         <Route path="/reset-password" page={ResetPasswordPage} name="resetPassword" />
       </Set>
       <PrivateSet unauthenticated="login" wrap={AppLayout}>
-        <Route path="/app" page={AppPage} name="app" />
-        <Route path="/app1" page={AppPage} name="app1" />
-        <Route path="/budgets/new" page={BudgetNewBudgetPage} name="newBudget" />
-        <Route path="/budgets/{id:Int}/edit" page={BudgetEditBudgetPage} name="editBudget" />
+        <Route path="/app" page={BudgetBudgetsPage} name="app" />
         <Route path="/budgets/{id:Int}" page={BudgetBudgetPage} name="budget" />
-        <Route path="/budgets" page={BudgetBudgetsPage} name="budgets" />
       </PrivateSet>
     </Router>
   )
